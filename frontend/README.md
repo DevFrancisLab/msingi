@@ -21,11 +21,14 @@ npm install
 npm run dev
 ```
 
-Runs on `http://localhost:5173`. API calls to `/api/*` are proxied to the
-FastAPI backend at `http://localhost:8000` (see `vite.config.ts`) — start the
-backend per `../docs/RUNNING.md` for a live connection. Without a running
-backend, the UI still renders fully: the connection pill shows **Offline**
-and the sidebar/context selectors fall back to placeholder data.
+Runs on `http://localhost:5173` and calls the FastAPI backend directly at
+`http://localhost:8000` (see `src/api/client.ts`, `VITE_API_BASE_URL` in
+`.env.example`) — start the backend per `../docs/RUNNING.md` for a live
+connection. The backend allows the `:5173` origin by default via CORS
+(`backend/app/core/config.py:cors_origins`, `.env`'s `CORS_ORIGINS`); add your
+frontend's origin there if you serve it from somewhere else. Without a
+running backend, the UI still renders fully: the connection pill shows
+**Offline** and the sidebar/context selectors fall back to placeholder data.
 
 Other scripts:
 
@@ -39,6 +42,11 @@ npm run preview    # preview the production build
 
 ```
 src/
+  api/              centralized API layer — the ONLY place fetch() is called
+    client.ts       base URL + fetch wrapper + ApiError (backend-detail-safe messages)
+    curriculum.ts   GET /api/health, /grades, /subjects, /topics
+    chat.ts         POST /api/chat
+    conversations.ts GET/POST /api/conversations, GET/DELETE /api/conversations/{id}
   components/
     ui/            small generic primitives (Select)
     dashboard/      Header, Sidebar, ContextBar, ChatWorkspace, ChatArea,
@@ -53,11 +61,10 @@ src/
     useReferenceData.ts    grade/subject/topic lists (+ demo fallback)
     useConnectionStatus.ts polls /api/health
   lib/
-    api.ts          typed client for the FastAPI backend
     demoData.ts      placeholder data used only when the backend has
                      nothing yet, or is unreachable
     utils.ts        cn(), relative-time and source-label formatting
-  types/            shared domain types (camelCase; api.ts maps to/from
+  types/            shared domain types (camelCase; api/*.ts maps to/from
                     the backend's snake_case schemas)
 ```
 
@@ -66,6 +73,19 @@ src/
 - Voice input is UI-only (disabled mic buttons with a "coming soon" label) —
   no fake transcription. See SPEC.md Phase 2.
 - Curriculum sources shown under an answer always come from the API
-  response (`ChatResponse.sources`); the UI never invents them.
+  response (`ChatResponse.sources`); the UI never invents them, and the
+  section doesn't render at all when the array is empty.
 - State is plain React context + hooks — no Redux/Zustand; the app doesn't
   need it yet.
+- `api/client.ts` maps every backend error to a teacher-safe message (never
+  raw Python exception text, internal URLs, or stack traces) and logs the
+  real detail to the console for developers.
+- `/api/subjects` and `/api/topics` aren't scoped by grade/subject — the
+  backend returns flat distinct-value lists from whatever curriculum is
+  ingested (`backend/app/api/reference.py`). The Topic selector is disabled
+  until a Subject is chosen as a UX guardrail, but it isn't narrowed to that
+  subject against real data, only against the bundled demo fallback — the
+  backend doesn't offer that filter yet.
+- Only `VITE_*` variables belong in frontend env config, and only
+  non-secret ones (e.g. `VITE_API_BASE_URL`). `ANTHROPIC_API_KEY` and Ollama
+  config live in the backend's `.env` and are never sent to the browser.

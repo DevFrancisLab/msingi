@@ -12,6 +12,10 @@ dist
 dist-ssr
 *.local
 
+# Local env overrides (frontend config is non-secret, but .env is still
+# meant to be per-machine — see .env.example for the documented defaults)
+.env
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

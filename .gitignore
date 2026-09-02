@@ -8,3 +8,5 @@ curriculum/processed/
 .pytest_cache/
 *.egg-info/
 .gstack/
+*.log
+page*_preview.png
