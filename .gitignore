@@ -7,3 +7,4 @@ curriculum/vectorstore/
 curriculum/processed/
 .pytest_cache/
 *.egg-info/
+.gstack/

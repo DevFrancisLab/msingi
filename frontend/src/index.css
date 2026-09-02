@@ -1,0 +1,206 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    Helvetica, Arial, sans-serif;
+
+  /* Text */
+  --color-ink: #151a21;
+  --color-ink-muted: #5b6472;
+  --color-ink-faint: #8891a0;
+
+  /* Surfaces */
+  --color-bg: #f6f7f5;
+  --color-surface: #ffffff;
+  --color-surface-muted: #eef0ec;
+  --color-border: #e2e5e1;
+
+  /* Brand (deep teal — calm, grounded, not another AI-purple gradient) */
+  --color-brand: #1e5f56;
+  --color-brand-strong: #123c36;
+  --color-brand-soft: #e5efec;
+
+  /* Status */
+  --color-online: #2f8a4f;
+  --color-online-soft: #e7f5eb;
+  --color-offline: #b5462f;
+  --color-offline-soft: #fbeae6;
+  --color-warn: #b5842a;
+  --color-warn-soft: #faf1e0;
+}
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  html {
+    overflow-x: hidden;
+  }
+
+  body {
+    background-color: var(--color-bg);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  ::selection {
+    background-color: var(--color-brand-soft);
+    color: var(--color-brand-strong);
+  }
+}
+
+@layer utilities {
+  .no-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-border) transparent;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  .no-scrollbar::-webkit-scrollbar-thumb {
+    background-color: var(--color-border);
+    border-radius: 999px;
+  }
+
+  .no-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+}
+
+/* Hand-rolled, minimal prose styling for assistant markdown output.
+   Kept small and specific instead of pulling in a typography plugin. */
+.msingi-prose {
+  font-size: 0.9375rem;
+  line-height: 1.65;
+  color: var(--color-ink);
+}
+
+.msingi-prose > :first-child {
+  margin-top: 0;
+}
+
+.msingi-prose > :last-child {
+  margin-bottom: 0;
+}
+
+.msingi-prose p {
+  margin: 0.65em 0;
+}
+
+.msingi-prose h1,
+.msingi-prose h2,
+.msingi-prose h3 {
+  font-weight: 600;
+  color: var(--color-ink);
+  margin-top: 1.2em;
+  margin-bottom: 0.4em;
+  line-height: 1.35;
+}
+
+.msingi-prose h1 {
+  font-size: 1.125rem;
+}
+
+.msingi-prose h2 {
+  font-size: 1.0625rem;
+}
+
+.msingi-prose h3 {
+  font-size: 0.9375rem;
+}
+
+.msingi-prose ul,
+.msingi-prose ol {
+  margin: 0.5em 0;
+  padding-left: 1.35em;
+}
+
+.msingi-prose ul {
+  list-style: disc;
+}
+
+.msingi-prose ol {
+  list-style: decimal;
+}
+
+.msingi-prose li {
+  margin: 0.25em 0;
+}
+
+.msingi-prose li::marker {
+  color: var(--color-ink-faint);
+}
+
+.msingi-prose strong {
+  font-weight: 600;
+}
+
+.msingi-prose a {
+  color: var(--color-brand);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.msingi-prose code {
+  background-color: var(--color-surface-muted);
+  border-radius: 4px;
+  padding: 0.15em 0.4em;
+  font-size: 0.85em;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.msingi-prose pre {
+  background-color: var(--color-brand-strong);
+  color: #eef4f2;
+  border-radius: 10px;
+  padding: 0.85em 1em;
+  overflow-x: auto;
+  margin: 0.75em 0;
+}
+
+.msingi-prose pre code {
+  background: none;
+  padding: 0;
+  color: inherit;
+}
+
+.msingi-prose blockquote {
+  border-left: 3px solid var(--color-brand);
+  padding-left: 0.85em;
+  margin: 0.65em 0;
+  color: var(--color-ink-muted);
+}
+
+.msingi-prose table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0.75em 0;
+  display: block;
+  overflow-x: auto;
+}
+
+.msingi-prose th,
+.msingi-prose td {
+  border: 1px solid var(--color-border);
+  padding: 0.4em 0.65em;
+  text-align: left;
+}
+
+.msingi-prose th {
+  background-color: var(--color-surface-muted);
+  font-weight: 600;
+}
+
+.msingi-prose hr {
+  border: none;
+  border-top: 1px solid var(--color-border);
+  margin: 1em 0;
+}
