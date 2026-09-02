@@ -20,6 +20,10 @@ class Settings(BaseSettings):
 
     database_url: str = "sqlite:///./msingi.db"
 
+    # Comma-separated origins allowed to call the API from a browser (the
+    # Vite dev server by default). Not a secret — safe to expose.
+    cors_origins: str = "http://localhost:5173,http://127.0.0.1:5173"
+
     embedding_model: str = "sentence-transformers/all-MiniLM-L6-v2"
 
     curriculum_raw_dir: str = "curriculum/raw"

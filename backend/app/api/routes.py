@@ -53,8 +53,8 @@ def subjects(retriever=Depends(get_retriever)):
 
 
 @router.get("/topics", response_model=list[str])
-def topics(retriever=Depends(get_retriever)):
-    return get_available_topics(retriever)
+def topics(subject: str | None = None, retriever=Depends(get_retriever)):
+    return get_available_topics(retriever, subject=subject)
 
 
 @router.post("/chat", response_model=ChatResponse)
@@ -88,7 +88,9 @@ def chat(
     db.commit()
 
     try:
-        answer = ai_service.answer(message, grade=grade, subject=subject, topic=topic, history=history)
+        answer = ai_service.answer(
+            message, grade=grade, subject=subject, topic=topic, mode=request.mode, history=history
+        )
     except AIServiceError as exc:
         logger.warning("AI service error: %s", exc)
         raise HTTPException(status_code=503, detail=str(exc)) from exc

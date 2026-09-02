@@ -15,5 +15,6 @@ def get_available_subjects(retriever: CurriculumRetriever) -> list[str]:
     return retriever.distinct_metadata_values("subject")
 
 
-def get_available_topics(retriever: CurriculumRetriever) -> list[str]:
-    return retriever.distinct_metadata_values("topic")
+def get_available_topics(retriever: CurriculumRetriever, subject: str | None = None) -> list[str]:
+    where = {"subject": subject} if subject else None
+    return retriever.distinct_metadata_values("topic", where=where)

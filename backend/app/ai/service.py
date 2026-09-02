@@ -9,7 +9,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 
 from app.ai.ollama import OllamaUnavailableError, generate
-from app.ai.prompts import build_prompt
+from app.ai.prompt_builder import build_prompt
 from app.core.config import Settings, get_settings
 from app.rag.retriever import CurriculumRetriever, RetrievedChunk
 
@@ -39,6 +39,7 @@ class AIService:
         grade: str | None = None,
         subject: str | None = None,
         topic: str | None = None,
+        mode: str | None = None,
         history: list[tuple[str, str]] | None = None,
     ) -> AIAnswer:
         question = (question or "").strip()
@@ -50,8 +51,7 @@ class AIService:
         except Exception as exc:
             raise AIServiceError(f"Curriculum retrieval failed: {exc}") from exc
 
-        context = "\n\n---\n\n".join(c.content for c in chunks)
-        messages = build_prompt(question, context, grade, subject, topic, history=history)
+        messages = build_prompt(question, chunks, grade, subject, topic, mode=mode, history=history)
 
         try:
             content = generate(self._settings, messages)

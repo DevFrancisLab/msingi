@@ -41,7 +41,12 @@ class CurriculumRetriever:
     def is_empty(self) -> bool:
         return self._store.get()["ids"] == []
 
-    def distinct_metadata_values(self, field: str) -> list[str]:
-        """Distinct non-empty values for a metadata field across all stored chunks."""
-        metadatas = self._store.get()["metadatas"] or []
+    def distinct_metadata_values(self, field: str, where: dict | None = None) -> list[str]:
+        """Distinct non-empty values for a metadata field across stored chunks.
+
+        `where` is an optional Chroma-style equality filter on other metadata
+        fields (e.g. `{"subject": "Agriculture"}`) so callers can scope one
+        field by another already-ingested one, without a separate index.
+        """
+        metadatas = self._store.get(where=where)["metadatas"] or []
         return sorted({m[field] for m in metadatas if m.get(field)})
