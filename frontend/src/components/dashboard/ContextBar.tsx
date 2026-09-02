@@ -1,12 +1,17 @@
 import { ChevronRight } from "lucide-react";
 import { useApp } from "@/context/useApp";
 import { Select } from "@/components/ui/Select";
-import { DEMO_TOPICS } from "@/lib/demoData";
 
 /**
  * Grade / Subject / Topic selection for the active chat. These map to the
  * `grade` / `subject` / `topic` fields the backend attaches to each chat
  * request and to the conversation it creates.
+ *
+ * Subject → Topic is a real dependent fetch: Topic stays disabled until a
+ * Subject is chosen, and only then does useTopics call
+ * GET /api/topics?subject=... (backend/app/api/routes.py) — no topics
+ * request fires before that, and no client-side filtering fakes what the
+ * backend already scopes for us.
  */
 export function ContextBar() {
   const {
@@ -19,14 +24,17 @@ export function ContextBar() {
     topic,
     topics,
     setTopic,
-    referenceIsDemo,
+    topicsLoading,
     referenceLoading,
   } = useApp();
 
-  // The backend's /api/topics list isn't subject-scoped yet, so real data
-  // shows every ingested topic. The demo fallback can narrow to the
-  // selected subject since it's a static, known mapping.
-  const topicOptions = referenceIsDemo && subject ? (DEMO_TOPICS[subject] ?? topics) : topics;
+  const topicPlaceholder = !subject
+    ? "Select a subject first"
+    : topicsLoading
+      ? "Loading…"
+      : topics.length === 0
+        ? "No topics found"
+        : "Topic";
 
   return (
     <div className="flex shrink-0 flex-wrap items-center gap-1.5 border-b border-border bg-surface px-3 py-2 sm:px-4">
@@ -50,12 +58,10 @@ export function ContextBar() {
       <Select
         label="Topic"
         value={topic ?? ""}
-        options={topicOptions}
-        placeholder={referenceLoading ? "Loading…" : "Topic"}
+        options={topics}
+        placeholder={topicPlaceholder}
         onChange={(value) => setTopic(value || null)}
-        // Topic is dependent on Subject: pick a subject first so the
-        // question a teacher asks is grounded in a specific area.
-        disabled={referenceLoading || !subject}
+        disabled={!subject || topicsLoading || topics.length === 0}
       />
     </div>
   );

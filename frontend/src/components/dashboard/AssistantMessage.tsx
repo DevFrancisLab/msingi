@@ -3,18 +3,39 @@ import remarkGfm from "remark-gfm";
 import { AlertCircle, RotateCcw } from "lucide-react";
 import { Logo } from "@/components/dashboard/Logo";
 import { SourceList } from "@/components/dashboard/SourceList";
+import { useElapsedSeconds } from "@/hooks/useElapsedSeconds";
+import { formatDuration } from "@/lib/utils";
 import type { ChatMessageData } from "@/types";
 
-function TypingIndicator() {
+// Local CPU inference can genuinely take minutes (observed ~3-4min on
+// modest hardware for one answer) — past this, say so, so a live demo
+// doesn't read as frozen. Below it, the dots alone are enough.
+const LONG_WAIT_SECONDS = 20;
+
+function TypingIndicator({ since }: { since: string }) {
+  const elapsed = useElapsedSeconds(true, since);
+  const longWait = elapsed >= LONG_WAIT_SECONDS;
+
   return (
-    <span className="inline-flex items-center gap-2 py-1 text-sm text-ink-faint">
-      <span className="inline-flex items-center gap-1" aria-hidden="true">
-        <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-ink-faint [animation-delay:-0.2s]" />
-        <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-ink-faint [animation-delay:-0.1s]" />
-        <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-ink-faint" />
+    <div
+      className="flex flex-col gap-1 py-1"
+      role="status"
+      aria-label="Msingi is preparing a response"
+    >
+      <span className="inline-flex items-center gap-2 text-sm text-ink-faint" aria-hidden="true">
+        <span className="inline-flex items-center gap-1">
+          <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-ink-faint [animation-delay:-0.2s]" />
+          <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-ink-faint [animation-delay:-0.1s]" />
+          <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-ink-faint" />
+        </span>
+        Msingi is thinking… <span className="tabular-nums">{formatDuration(elapsed)}</span>
       </span>
-      Msingi is thinking…
-    </span>
+      {longWait && (
+        <span className="text-xs text-ink-faint" aria-hidden="true">
+          Running on local hardware can take a few minutes — no need to resend.
+        </span>
+      )}
+    </div>
   );
 }
 
@@ -34,7 +55,7 @@ export function AssistantMessage({ message, onRetry }: AssistantMessageProps) {
           </span>
         </div>
 
-        {message.status === "sending" && <TypingIndicator />}
+        {message.status === "sending" && <TypingIndicator since={message.createdAt} />}
 
         {message.status === "error" && (
           <div className="flex items-start gap-2 rounded-md border border-offline/30 bg-offline-soft px-3 py-2.5 text-sm text-offline">

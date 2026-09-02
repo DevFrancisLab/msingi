@@ -20,6 +20,9 @@ class ChatRequest(BaseModel):
     grade: str | None = None
     subject: str | None = None
     topic: str | None = None
+    mode: str | None = Field(
+        default=None, description="UNDERSTAND | PREPARE | TEACH — omit to let the model infer."
+    )
 
 
 class ChatMessage(BaseModel):

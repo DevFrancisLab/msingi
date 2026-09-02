@@ -25,6 +25,8 @@ export interface SendMessagePayload {
   grade?: string | null;
   subject?: string | null;
   topic?: string | null;
+  /** UNDERSTAND | PREPARE | TEACH — omit to let the model infer. */
+  mode?: string | null;
 }
 
 export interface SendMessageResult {
@@ -51,6 +53,7 @@ export async function sendChatMessage(payload: SendMessagePayload): Promise<Send
       grade: payload.grade,
       subject: payload.subject,
       topic: payload.topic,
+      mode: payload.mode,
     }),
   });
 

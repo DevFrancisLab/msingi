@@ -5,7 +5,7 @@ Skipped automatically (see tests/conftest.py) when Ollama is unavailable.
 import pytest
 
 from app.ai.ollama import check_ollama_available, generate
-from app.ai.prompts import build_prompt
+from app.ai.prompt_builder import build_prompt
 from app.core.config import get_settings
 
 
@@ -20,7 +20,7 @@ def test_check_ollama_available_reports_ok():
 def test_generate_returns_text_response():
     messages = build_prompt(
         question="Say hello in one short sentence.",
-        context="",
+        chunks=[],
         grade="Grade 10",
         subject="Biology",
         topic="Photosynthesis",

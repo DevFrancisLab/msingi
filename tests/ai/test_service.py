@@ -47,10 +47,34 @@ def test_answer_handles_no_retrieved_context(tmp_settings):
         answer = service.answer("Explain something obscure", grade="Grade 10")
 
     assert answer.sources == []
-    # context passed to build_prompt should be empty, prompts.py fills in the fallback message
+    # chunks passed to build_prompt should be empty; prompts.py fills in the fallback message
     called_messages = mocked.call_args[0][1]
     rendered = "\n".join(m.content for m in called_messages)
     assert "No relevant curriculum material was found" in rendered
+
+
+def test_answer_passes_mode_through_to_prompt(tmp_settings):
+    service, _ = _service_with_mock_retriever(tmp_settings, [])
+
+    with patch("app.ai.service.generate", return_value="ok") as mocked:
+        service.answer("Explain photosynthesis", grade="Grade 10", mode="PREPARE")
+
+    called_messages = mocked.call_args[0][1]
+    rendered = "\n".join(m.content for m in called_messages)
+    assert "PREPARE" in rendered
+
+
+def test_answer_conversation_history_reaches_the_prompt(tmp_settings):
+    service, _ = _service_with_mock_retriever(tmp_settings, [])
+    history = [("user", "Explain photosynthesis."), ("assistant", "It converts light to chemical energy.")]
+
+    with patch("app.ai.service.generate", return_value="ok") as mocked:
+        service.answer("How should I introduce it?", grade="Grade 10", history=history)
+
+    called_messages = mocked.call_args[0][1]
+    rendered = "\n".join(m.content for m in called_messages)
+    assert "Explain photosynthesis." in rendered
+    assert "It converts light to chemical energy." in rendered
 
 
 def test_unsupported_provider_raises_on_construction(tmp_settings):

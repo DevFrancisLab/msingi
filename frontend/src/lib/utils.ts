@@ -25,6 +25,14 @@ export function formatRelativeTime(iso: string): string {
   return date.toLocaleDateString(undefined, { month: "short", day: "numeric" });
 }
 
+/** Formats whole seconds as "0:07", "1:23", "12:04" — for a live "thinking" timer. */
+export function formatDuration(totalSeconds: number): string {
+  const clamped = Math.max(0, Math.floor(totalSeconds));
+  const minutes = Math.floor(clamped / 60);
+  const seconds = clamped % 60;
+  return `${minutes}:${String(seconds).padStart(2, "0")}`;
+}
+
 /** Builds a human label from a source ref, e.g. "Grade 10 Biology · Photosynthesis · Page 42". */
 export function formatSourceLabel(source: {
   grade: string | null;

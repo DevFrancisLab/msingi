@@ -58,7 +58,9 @@ src/
   hooks/
     useChat.ts             message send/retry lifecycle for one conversation
     useConversations.ts    sidebar conversation list (+ demo fallback)
-    useReferenceData.ts    grade/subject/topic lists (+ demo fallback)
+    useReferenceData.ts    grade/subject lists (+ demo fallback)
+    useTopics.ts            topics for the selected subject, fetched lazily
+                            (+ demo fallback)
     useConnectionStatus.ts polls /api/health
   lib/
     demoData.ts      placeholder data used only when the backend has
@@ -80,12 +82,12 @@ src/
 - `api/client.ts` maps every backend error to a teacher-safe message (never
   raw Python exception text, internal URLs, or stack traces) and logs the
   real detail to the console for developers.
-- `/api/subjects` and `/api/topics` aren't scoped by grade/subject — the
-  backend returns flat distinct-value lists from whatever curriculum is
-  ingested (`backend/app/api/reference.py`). The Topic selector is disabled
-  until a Subject is chosen as a UX guardrail, but it isn't narrowed to that
-  subject against real data, only against the bundled demo fallback — the
-  backend doesn't offer that filter yet.
+- Topics are genuinely scoped by subject: `GET /api/topics?subject=...`
+  (backend/app/api/routes.py → reference.py → retriever.py, a Chroma
+  metadata `where` filter), not a client-side fake. The Topic selector stays
+  disabled until a Subject is chosen and useTopics fetches nothing before
+  that. `/api/subjects` itself isn't scoped by grade — the backend only has
+  one grade (Grade 10) right now, so there's nothing to scope it by yet.
 - Only `VITE_*` variables belong in frontend env config, and only
   non-secret ones (e.g. `VITE_API_BASE_URL`). `ANTHROPIC_API_KEY` and Ollama
   config live in the backend's `.env` and are never sent to the browser.

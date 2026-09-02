@@ -13,10 +13,23 @@ function truncate(text: string, max: number): string {
   return trimmed.length > max ? `${trimmed.slice(0, max - 1).trimEnd()}…` : trimmed;
 }
 
+interface LoadedConversationContext {
+  grade: string | null;
+  subject: string | null;
+  topic: string | null;
+}
+
 interface UseChatOptions {
   conversationId: string | null;
   context: TeachingContext;
   onConversationCreated: (conversation: ConversationSummary) => void;
+  /**
+   * Called once a real conversation's history finishes loading, with its
+   * grade/subject/topic — lets the caller sync the ContextBar when a
+   * conversation is restored (e.g. from a URL on page load) without
+   * depending on the sidebar list having loaded first.
+   */
+  onHistoryLoaded?: (context: LoadedConversationContext) => void;
 }
 
 interface UseChatResult {
@@ -38,6 +51,7 @@ export function useChat({
   conversationId,
   context,
   onConversationCreated,
+  onHistoryLoaded,
 }: UseChatOptions): UseChatResult {
   const [messages, setMessages] = useState<ChatMessageData[]>([]);
   const [sending, setSending] = useState(false);
@@ -50,6 +64,10 @@ export function useChat({
   const contextRef = useRef(context);
   useEffect(() => {
     contextRef.current = context;
+  });
+  const onHistoryLoadedRef = useRef(onHistoryLoaded);
+  useEffect(() => {
+    onHistoryLoadedRef.current = onHistoryLoaded;
   });
 
   useEffect(() => {
@@ -69,7 +87,13 @@ export function useChat({
     let cancelled = false;
     getConversation(conversationId)
       .then((detail) => {
-        if (!cancelled) setMessages(detail.messages);
+        if (cancelled) return;
+        setMessages(detail.messages);
+        onHistoryLoadedRef.current?.({
+          grade: detail.grade,
+          subject: detail.subject,
+          topic: detail.topic,
+        });
       })
       .catch((err) => {
         if (cancelled) return;

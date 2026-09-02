@@ -10,3 +10,4 @@ curriculum/processed/
 .gstack/
 *.log
 page*_preview.png
+.scratch/

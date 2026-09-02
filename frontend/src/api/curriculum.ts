@@ -25,10 +25,9 @@ export async function getHealth(): Promise<HealthStatus> {
   };
 }
 
-// Grade 10 only for the MVP (see backend/app/api/reference.py); subjects and
-// topics are flat lists derived from whatever curriculum has been ingested,
-// not scoped by grade/subject — the backend doesn't offer that filter, so
-// the frontend doesn't pretend to either.
+// Grade 10 only for the MVP (see backend/app/api/reference.py). Subjects are
+// a flat list derived from whatever curriculum has been ingested — the
+// backend has only one grade, so there's nothing to scope subjects by yet.
 export function getGrades(): Promise<string[]> {
   return request<string[]>("/api/grades");
 }
@@ -37,6 +36,13 @@ export function getSubjects(): Promise<string[]> {
   return request<string[]>("/api/subjects");
 }
 
-export function getTopics(): Promise<string[]> {
-  return request<string[]>("/api/topics");
+/**
+ * Topics ingested for a subject. `subject` is optional — omit it for the
+ * full unscoped list (GET /api/topics), or pass one to scope the result
+ * (GET /api/topics?subject=...) once the backend has ingested content
+ * tagged with more than one subject.
+ */
+export function getTopics(subject?: string | null): Promise<string[]> {
+  const query = subject ? `?subject=${encodeURIComponent(subject)}` : "";
+  return request<string[]>(`/api/topics${query}`);
 }

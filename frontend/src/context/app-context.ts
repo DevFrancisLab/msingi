@@ -13,6 +13,7 @@ export interface AppContextValue {
   grades: string[];
   subjects: string[];
   topics: string[];
+  topicsLoading: boolean;
   referenceIsDemo: boolean;
   referenceLoading: boolean;
 
